@@ -5,16 +5,15 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
 import { Send, Bot, User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import Markdown from "react-markdown";
-// import type { getWeather } from "./api/chat/tools";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const Weather = ({
   city,
@@ -23,7 +22,7 @@ const Weather = ({
 }: {
   city: string;
   temperature: number;
-  unit: "F" | "C";
+  unit: "C" | "F";
 }) => {
   return (
     <div className="bg-slate-300 p-3 rounded-sm">
@@ -31,8 +30,6 @@ const Weather = ({
     </div>
   );
 };
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const useScrollToBottom = (dependency: any) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -48,12 +45,12 @@ const useScrollToBottom = (dependency: any) => {
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "/api/chat",
     maxSteps: 10,
     async onToolCall({ toolCall }) {
       if (toolCall.toolName === "getWeather") {
         const args = toolCall.args as { city: string };
-
+        const sleep = (ms: number) =>
+          new Promise((resolve) => setTimeout(resolve, ms));
         await sleep(1000);
         console.log("on the frontend");
         return {
@@ -114,36 +111,16 @@ export default function Home() {
                             Function: {tool.toolName}{" "}
                             {tool.state === "result" ? "✅" : "⏳"}
                           </p>
+                          <p className="font-semibold font-mono text-xs">
+                            Input:
+                          </p>
+                          <pre className="mt-2 overflow-x-auto text-xs mb-3">
+                            {JSON.stringify(tool.args, null, 2)}
+                          </pre>
 
-                          <Accordion
-                            type="single"
-                            collapsible
-                            className="border-0 mb-0"
-                          >
-                            <AccordionItem
-                              value={tool.toolCallId}
-                              className="border-0 mb-0"
-                            >
-                              <AccordionTrigger className="font-semibold font-mono text-xs">
-                                Input
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <pre className="mt-2 overflow-x-auto text-xs">
-                                  {JSON.stringify(tool.args, null, 2)}
-                                </pre>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                          <Accordion
-                            type="single"
-                            collapsible
-                            className="border-0 mb-0"
-                          >
-                            <AccordionItem
-                              value={tool.toolCallId}
-                              className="border-0 mb-0"
-                            >
-                              <AccordionTrigger className="font-semibold font-mono text-xs">
+                          <Accordion type="single" collapsible>
+                            <AccordionItem value="item-1">
+                              <AccordionTrigger className="font-semibold font-mono text-xs mb-3">
                                 Output
                               </AccordionTrigger>
                               <AccordionContent>
@@ -157,6 +134,23 @@ export default function Home() {
                               </AccordionContent>
                             </AccordionItem>
                           </Accordion>
+                          {/* {tool.state === "call" && (
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            addToolResult({
+                              toolCallId: tool.toolCallId,
+                              result: {
+                                city: "Turku",
+                                temperature: 24,
+                                unit: "C",
+                              },
+                            });
+                          }}
+                        >
+                          call function
+                        </Button>
+                      )} */}
                         </div>
                       ))}
 
